@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import paho.mqtt.client as mqtt
 import threading
 import json
+import sqlite3
 
 app = Flask(__name__)
 
@@ -12,6 +13,17 @@ devices = {}
 MQTT_BROKER = "localhost"
 MQTT_PORT = 1883
 MQTT_TOPIC = "iot/vlan"
+
+# Database insert function
+def insert_into_db(device_id, device_type, location, message_rate, vlan):
+    conn = sqlite3.connect("vlan_data.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO device_data (device_id, device_type, location, message_rate, vlan)
+        VALUES (?, ?, ?, ?, ?)
+    """, (device_id, device_type, location, message_rate, vlan))
+    conn.commit()
+    conn.close()
 
 # Handle MQTT connection
 def on_connect(client, userdata, flags, rc):
@@ -41,6 +53,9 @@ def on_message(client, userdata, msg):
             "message_rate": message_rate
         }
 
+        # ✅ Store in SQLite
+        insert_into_db(device_id, device_type, location, message_rate, vlan_id)
+
         print(f"📥 {device_id} metadata received. Assigned VLAN {vlan_id} ✅")
     except json.JSONDecodeError:
         print("❌ Failed to parse JSON MQTT message")
@@ -64,10 +79,10 @@ def assign_vlan():
     device_id = data.get("device_id")
     if not device_id:
         return jsonify({"error": "device_id required"}), 400
-    vlan = devices.get(device_id)
-    if vlan is None:
+    device = devices.get(device_id)
+    if device is None:
         return jsonify({"message": "Device not found yet via MQTT"}), 404
-    return jsonify({"device_id": device_id, "vlan": vlan})
+    return jsonify({"device_id": device_id, "vlan": device["vlan"]})
 
 # API: Get all device-to-VLAN mappings
 @app.route("/get_devices", methods=["GET"])

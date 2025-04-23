@@ -12,9 +12,11 @@ CREATE TABLE IF NOT EXISTS device_data (
     device_type TEXT,
     location TEXT,
     message_rate INTEGER,
-    vlan INTEGER
+    vlan INTEGER,
+    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
 )
 """)
+
 
 conn.commit()
 conn.close()

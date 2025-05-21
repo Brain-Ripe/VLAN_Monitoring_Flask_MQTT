@@ -1,28 +1,60 @@
 import React from 'react';
-import { Server, Bell, User } from 'lucide-react';
+import { Bell } from 'lucide-react';
+import { useNetwork } from '../context/NetworkContext';
 
-const Header = () => {
+interface HeaderProps {
+  toggleSidebar: () => void;
+  sidebarOpen: boolean;
+}
+
+const Header: React.FC<HeaderProps> = () => {
+
+  const { vlans } = useNetwork();
+
   return (
-    <header className="bg-gray-800 border-b border-gray-700 py-3 px-6">
-      <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-3">
-          <Server className="text-blue-400" size={24} />
-          <h1 className="text-xl font-semibold">Smart City VLAN Manager</h1>
-        </div>
-        
-        <div className="flex items-center space-x-4">
-          <button className="relative p-1 rounded-full hover:bg-gray-700 transition-colors">
-            <Bell size={20} />
-            <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-          </button>
+    <header className="bg-white dark:bg-gray-800 shadow-md w-full z-10">
+      <div className="px-4 py-3 flex items-center justify-between">
+        <div className="flex items-center">
           
-          <div className="flex items-center space-x-2">
-            <div className="bg-blue-500 rounded-full p-1">
-              <User size={18} />
+          <div className="ml-4 flex items-center">
+            <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
+              <span className="text-white font-bold">SC</span>
             </div>
-            <span className="text-sm font-medium">Admin</span>
+            <h1 className="ml-2 text-xl font-semibold text-gray-800 dark:text-white">
+              Smart City VLAN Manager
+            </h1>
           </div>
         </div>
+
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <Bell className="h-6 w-6 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white cursor-pointer" />
+            <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+          </div>
+          
+          <div className="flex items-center">
+            <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
+              <span className="text-gray-700 font-medium">A</span>
+            </div>
+            <span className="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">Admin</span>
+          </div>
+        </div>
+      </div>
+      
+      <div className="bg-gray-100 dark:bg-gray-700 px-4 py-2 flex items-center overflow-x-auto">
+        <span className="text-xs font-medium text-gray-500 dark:text-gray-400 mr-2">VLANs:</span>
+        {vlans.map(vlan => (
+          <div 
+            key={vlan.id}
+            className="flex items-center px-3 py-1 mr-2 rounded-full text-xs font-medium"
+            style={{ backgroundColor: `${vlan.color}20`, color: vlan.color }}
+          >
+            {vlan.name}
+            <span className="ml-1 px-1.5 rounded-full text-white text-xs" style={{ backgroundColor: vlan.color }}>
+              {vlan.id}
+            </span>
+          </div>
+        ))}
       </div>
     </header>
   );

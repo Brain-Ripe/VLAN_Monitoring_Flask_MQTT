@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import paho.mqtt.client as mqtt
 import threading
 import json
 import sqlite3
 
 app = Flask(__name__)
+CORS(app)
 
 # In-memory device VLAN store
 devices = {}
